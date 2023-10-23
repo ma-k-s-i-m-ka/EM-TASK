@@ -1,0 +1,26 @@
+---
+
+services:
+  app:
+    image: effective_mobile_task:local
+    container_name: em
+    ports:
+      - "3005:3005"
+    depends_on:
+      - postgresql
+    networks:
+      - ps
+
+  postgresql:
+    image: postgres:14-alpine
+    container_name: em-psql
+    environment:
+      - POSTGRES_DB=em
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=GCvhFTduk1
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    networks:
+      - ps
+networks:
+  ps:

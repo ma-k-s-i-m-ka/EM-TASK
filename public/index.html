@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список пользователей</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .buttons-container {
+            margin-bottom: 20px;
+        }
+        .date-input {
+            padding: 10px;
+            margin-right: 10px;
+        }
+        .button {
+            padding: 10px;
+            width: 250px;
+            margin-right: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>Список пользователей</h1>
+<div class="buttons-container">
+    <button id="showAllButton" class="button">Показать всех пользователей</button>
+</div>
+<div class= "buttons-container">
+    <button id="showByFiltersButton" class="button">Показать отсортированных пользователей</button>
+    <input type="text" id="nameFilter" class="date-input" placeholder="Имя">
+    <input type="text" id="surnameFilter" class="date-input" placeholder="Фамилия">
+    <input type="text" id="patronymicFilter" class="date-input" placeholder="Отчество">
+    <input type="text" id="genderFilter" class="date-input" placeholder="Пол">
+    <input type="text" id="nationFilter" class="date-input" placeholder="Национальность">
+</div>
+<div class="buttons-container">
+    <button id="createUserButton" class="button">Создать пользователя</button>
+    <input type="text" id="newUserName" class="date-input" placeholder="Имя">
+    <input type="text" id="newUserSurname" class="date-input" placeholder="Фамилия">
+    <input type="text" id="newUserPatronymic" class="date-input" placeholder="Отчество">
+    <p id="createUserMessage"></p>
+</div>
+<div class="buttons-container">
+    <button id="findUserButton" class="button">Найти пользователя</button>
+    <input type="text" id="userIdInput" class="date-input" placeholder="Номер пользователя">
+</div>
+<div class="buttons-container">
+    <button id="deleteUserButton" class="button">Удалить пользователя</button>
+    <input type="text" id="userIdToDeleteInput" class="date-input" placeholder="Номер пользователя">
+</div>
+<p id="foundUserInfo"></p>
+<p id="deleteUserInfo"></p>
+<br>
+<table id="userTable">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Имя</th>
+        <th>Фамилия</th>
+        <th>Отчество</th>
+        <th>Возраст</th>
+        <th>Пол</th>
+        <th>Национальность</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<div id="pagination"></div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const showAllButton = document.getElementById('showAllButton');
+        const userTable = document.getElementById('userTable').getElementsByTagName('tbody')[0];
+        const findUserButton = document.getElementById('findUserButton');
+        const userIdInput = document.getElementById('userIdInput');
+        const foundUserInfo = document.getElementById('foundUserInfo');
+        const deleteUserButton = document.getElementById('deleteUserButton');
+        const userIdToDeleteInput = document.getElementById('userIdToDeleteInput');
+        const deleteUserInfo = document.getElementById('deleteUserInfo');
+        const nameFilter = document.getElementById('nameFilter');
+        const surnameFilter = document.getElementById('surnameFilter');
+        const patronymicFilter = document.getElementById('patronymicFilter');
+        const genderFilter = document.getElementById('genderFilter');
+        const nationFilter = document.getElementById('nationFilter');
+        const showByFiltersButton = document.getElementById('showByFiltersButton');
+        const createUserButton = document.getElementById('createUserButton');
+        const newUserName = document.getElementById('newUserName');
+        const newUserSurname = document.getElementById('newUserSurname');
+        const newUserPatronymic = document.getElementById('newUserPatronymic');
+        const createUserMessage = document.getElementById('createUserMessage');
+
+
+        function updateUserTable(user) {
+            userTable.innerHTML = '';
+            user.forEach(user => {
+                const row = userTable.insertRow();
+                row.insertCell(0).textContent = user.id;
+                row.insertCell(1).textContent = user.name;
+                row.insertCell(2).textContent = user.surname;
+                row.insertCell(3).textContent = user.patronymic;
+                row.insertCell(4).textContent = user.age;
+                row.insertCell(5).textContent = user.gender;
+                row.insertCell(6).textContent = user.nation;
+            });
+        }
+
+        showAllButton.addEventListener('click', function () {
+            fetch('http://localhost:3005/api/all_users')
+                .then(response => response.json())
+                .then(data => {
+                    updateUserTable(data);
+                })
+                .catch(error => {
+                    console.error('Ошибка при получении данных:', error);
+                });
+        });
+
+        showByFiltersButton.addEventListener('click', function () {
+            const filters = {};
+
+            if (nameFilter.value) {
+                filters.name = nameFilter.value;
+            }
+            if (surnameFilter.value) {
+                filters.surname = surnameFilter.value;
+            }
+            if (patronymicFilter.value) {
+                filters.patronymic = patronymicFilter.value;
+            }
+            if (genderFilter.value) {
+                filters.gender = genderFilter.value;
+            }
+            if (nationFilter.value) {
+                filters.nation = nationFilter.value;
+            }
+
+            fetch('http://localhost:3005/api/sort_users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(filters)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    updateUserTable(data);
+                })
+                .catch(error => {
+                    console.error('Ошибка при получении данных:', error);
+                });
+        });
+
+        createUserButton.addEventListener('click', function () {
+            const newUser = {
+                name: newUserName.value,
+                surname: newUserSurname.value,
+                patronymic: newUserPatronymic.value
+            };
+            if (!newUser.name || !newUser.surname || !newUser.patronymic) {
+                createUserMessage.textContent = 'Заполните все поля';
+                return;
+            }
+
+            fetch('http://localhost:3005/api/user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newUser)
+            })
+                .then(response => {
+                    if (response.status === 201) {
+                        createUserMessage.textContent = 'Пользователь был создан';
+                    } else {
+                        createUserMessage.textContent = 'Произошла ошибка';
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data) {
+                        createUserMessage.textContent = 'Пользователь был создан';
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при создании пользователя:', error);
+                });
+        });
+
+        findUserButton.addEventListener('click', function () {
+            const userId = userIdInput.value;
+
+            if (userId) {
+                fetch(`http://localhost:3005/api/user/${userId}`)
+                    .then(response => {
+                        if (response.status === 200) {
+                            return response.json();
+                        } else if (response.status === 404) {
+                            foundUserInfo.textContent = 'Пользователь не найден';
+                        } else {
+                            foundUserInfo.textContent = 'Произошла ошибка';
+                        }
+                    })
+                    .then(data => {
+                        if (data) {
+                            updateUserTable([data]);
+                            foundUserInfo.textContent = '';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при получении данных:', error);
+                    });
+            } else {
+                foundUserInfo.textContent = 'Введите номер пользователя';
+            }
+        });
+
+        deleteUserButton.addEventListener('click', function () {
+            const userIdToDelete = userIdToDeleteInput.value;
+
+            if (userIdToDelete) {
+                fetch(`http://localhost:3005/api/user/${userIdToDelete}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => {
+                        if (response.status === 200) {
+                            return response.text();
+                        } else if (response.status === 404) {
+                            deleteUserInfo.textContent = 'Пользователь не найден';
+                        } else {
+                            deleteUserInfo.textContent = 'Произошла ошибка';
+                        }
+                    })
+                    .then(data => {
+                        if (data) {
+                            deleteUserInfo.textContent = `Пользователь ${userIdToDelete} был удален`;
+                            showAllButton.click();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при удалении пользователя:', error);
+                    });
+            } else {
+                deleteUserInfo.textContent = 'Введите номер пользователя для удаления';
+            }
+        });
+    });
+</script>
+</body>
+</html>

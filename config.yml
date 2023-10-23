@@ -1,0 +1,13 @@
+database_conn_string: postgres://postgres:GCvhFTduk1@localhost:5432/em
+http:
+    port: 3005
+    host: 0.0.0.0
+logger:
+  log_to_console: true
+  encode_logs_as_json: true
+  log_to_file: true
+  directory: logs
+  filename: logs.log
+  max_size: 10
+  max_backups: 1
+  max_age: 10

@@ -1,0 +1,227 @@
+definitions:
+  domain.CreateUserRequest:
+    properties:
+      name:
+        example: Dmitriy
+        type: string
+      patronymic:
+        example: Vasilevich
+        type: string
+      surname:
+        example: Ushakov
+        type: string
+    type: object
+  domain.UpdateUserRequest:
+    properties:
+      age:
+        example: 28
+        type: integer
+      gender:
+        example: male
+        type: string
+      id:
+        example: 1567
+        type: integer
+      name:
+        example: Dmitriy
+        type: string
+      nation:
+        example: slav
+        type: string
+      patronymic:
+        example: Vasilevich
+        type: string
+      surname:
+        example: Ushakov
+        type: string
+    type: object
+  domain.UserResponse:
+    properties:
+      age:
+        example: 28
+        type: integer
+      gender:
+        example: male
+        type: string
+      id:
+        example: 1567
+        type: integer
+      name:
+        example: Dmitriy
+        type: string
+      nation:
+        example: slav
+        type: string
+      patronymic:
+        example: Vasilevich
+        type: string
+      surname:
+        example: Ushakov
+        type: string
+    type: object
+  domain.UserSort:
+    properties:
+      gender:
+        example: male
+        type: string
+      name:
+        example: Dmitriy
+        type: string
+      nation:
+        example: slav
+        type: string
+      patronymic:
+        example: Vasilevich
+        type: string
+      surname:
+        example: Ushakov
+        type: string
+    type: object
+host: localhost:3005
+info:
+  contact: {}
+  title: EffectiveMobileTask
+paths:
+  /api/all_users:
+    get:
+      consumes:
+      - application/json
+      description: Получает список всех пользователей
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.UserResponse'
+            type: array
+      summary: Получить всех пользователей
+  /api/sort_users:
+    get:
+      consumes:
+      - application/json
+      description: Получает список всех пользователей с сортировкой
+      parameters:
+      - description: Данные для сортировки пользователя
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UserSort'
+      - description: Имя пользователя
+        in: query
+        name: name
+        type: string
+      - description: Фамилия пользователя
+        in: query
+        name: surname
+        type: string
+      - description: Отчество пользователя
+        in: query
+        name: patronymic
+        type: string
+      - description: Возраст пользователя
+        in: query
+        name: age
+        type: integer
+      - description: Пол пользователя
+        in: query
+        name: gender
+        type: string
+      - description: Страна пользователя
+        in: query
+        name: nation
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.UserResponse'
+            type: array
+      summary: Получить всех пользователей с сортировкой
+  /api/user:
+    post:
+      consumes:
+      - application/json
+      description: Создает нового пользователя
+      parameters:
+      - description: Данные для создания пользователя
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.UserResponse'
+      summary: Создать пользователя
+  /api/user/{user_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет пользователя по заданному идентификатору
+      parameters:
+      - description: Идентификатор пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Удалить пользователя
+    get:
+      consumes:
+      - application/json
+      description: Получает пользователя по заданному идентификатору
+      parameters:
+      - description: Идентификатор пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.UserResponse'
+      summary: Получить пользователя по идентификатору
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет существующего пользователя
+      parameters:
+      - description: Идентификатор пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления пользователя
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.UserResponse'
+      summary: Обновить пользователя
+swagger: "2.0"
